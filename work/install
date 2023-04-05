@@ -1,5 +1,6 @@
 #!/bin/sh
-export commonapi_path=/opt/commonapi/
+export commonapi_path=$PWD
+
 sudo apt-get install libboost-all-dev -y
 sudo apt-get install asciidoc source-highlight doxygen graphviz -y
 
@@ -159,6 +160,25 @@ interface HelloWorld {
   }
 }" > HelloWorld.fidl
 
+# someip extra files
+echo "import \"platform:/plugin/org.genivi.commonapi.someip/deployment/CommonAPI-SOMEIP_deployment_spec.fdepl\"
+import \"HelloWorld.fidl\"
+
+define org.genivi.commonapi.someip.deployment for interface commonapi.HelloWorld {
+	SomeIpServiceID = 4660
+
+	method sayHello {
+		SomeIpMethodID = 123
+	}
+}
+
+define org.genivi.commonapi.someip.deployment for provider as Service {
+	instance commonapi.HelloWorld {
+		InstanceId = \"test\"
+		SomeIpInstanceID = 22136
+	}
+}" > HelloWorld.fdepl
+
 # service files 
 cd $commonapi_path/project
 mkdir server
@@ -245,8 +265,10 @@ int main() {
     return 0;
 }" > HelloWorldClient.cpp
 
+
 # generate files 
 cd $commonapi_path/project
 ../generators/commonapi_core_gen/commonapi-core-generator-linux-x86 --skel --dest-common ./src-gen/core/common --dest-proxy ./src-gen/core/proxy --dest-stub ./src-gen/core/stub --dest-skel ./src-gen/core/skel ./fidl/HelloWorld.fidl
 
 ../generators/commonapi_dbus_gen/commonapi-dbus-generator-linux-x86 --dest-common ./src-gen/dbus/common --dest-proxy ./src-gen/dbus/proxy --dest-stub ./src-gen/dbus/stub  ./fidl/HelloWorld.fidl
+

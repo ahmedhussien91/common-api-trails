@@ -35,3 +35,5 @@
 install/
 generators/
 project/
+work/*/
+work/*.tar.gz
