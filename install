@@ -158,3 +158,96 @@ interface HelloWorld {
     }
   }
 }" > HelloWorld.fidl
+
+# service files 
+cd $commonapi_path/project
+mkdir server
+cd server
+echo "// HelloWorldService.cpp
+#include <iostream>
+#include <thread>
+#include <CommonAPI/CommonAPI.hpp>
+#include "HelloWorldStubImpl.hpp"
+
+using namespace std;
+
+int main() {
+    std::shared_ptr<CommonAPI::Runtime> runtime = CommonAPI::Runtime::get();
+    std::shared_ptr<HelloWorldStubImpl> myService =
+    	std::make_shared<HelloWorldStubImpl>();
+    runtime->registerService(\"local\", \"test\", myService);
+    std::cout << \"Successfully Registered Service!\" << std::endl;
+
+    while (true) {
+        std::cout << \"Waiting for calls... (Abort with CTRL+C)\" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(30));
+    }
+    return 0;
+ }" > HelloWorldService.cpp
+ 
+echo "// HelloWorldStubImpl.hpp
+#ifndef HELLOWORLDSTUBIMPL_H_
+#define HELLOWORLDSTUBIMPL_H_
+#include <CommonAPI/CommonAPI.hpp>
+#include <v1/commonapi/HelloWorldStubDefault.hpp>
+
+class HelloWorldStubImpl: public v1_0::commonapi::HelloWorldStubDefault {
+public:
+    HelloWorldStubImpl();
+    virtual ~HelloWorldStubImpl();
+    virtual void sayHello(const std::shared_ptr<CommonAPI::ClientId> _client,
+    	std::string _name, sayHelloReply_t _return);
+};
+#endif /* HELLOWORLDSTUBIMPL_H_ */" > HelloWorldStubImpl.hpp
+
+echo "// HelloWorldStubImpl.cpp
+#include "HelloWorldStubImpl.hpp"
+
+HelloWorldStubImpl::HelloWorldStubImpl() { }
+HelloWorldStubImpl::~HelloWorldStubImpl() { }
+
+void HelloWorldStubImpl::sayHello(const std::shared_ptr<CommonAPI::ClientId> _client,
+	std::string _name, sayHelloReply_t _reply) {
+	    std::stringstream messageStream;
+	    messageStream << \"Hello \" << _name << \"!\";
+	    std::cout << \"sayHello('\" << _name << \"'): '\" << messageStream.str() << \"'\n\";
+
+    _reply(messageStream.str());
+};" > HelloWorldStubImpl.cpp
+
+# client file
+cd $commonapi_path/project
+mkdir client
+cd client
+echo "// HelloWorldClient.cpp
+#include <iostream>
+#include <string>
+#include <unistd.h>
+#include <CommonAPI/CommonAPI.hpp>
+#include <v1/commonapi/HelloWorldProxy.hpp>
+
+using namespace v1_0::commonapi;
+
+int main() {
+    std::shared_ptr < CommonAPI::Runtime > runtime = CommonAPI::Runtime::get();
+    std::shared_ptr<HelloWorldProxy<>> myProxy =
+    	runtime->buildProxy<HelloWorldProxy>(\"local\", \"test\");
+
+    std::cout << \"Checking availability!\" << std::endl;
+    while (!myProxy->isAvailable())
+        usleep(10);
+    std::cout << \"Available...\" << std::endl;
+
+    CommonAPI::CallStatus callStatus;
+    std::string returnMessage;
+    myProxy->sayHello(\"Bob\", callStatus, returnMessage);
+    std::cout << \"Got message: '\" << returnMessage << \"'\n\";
+    return 0;
+}" > HelloWorldClient.cpp
+
+# generate files 
+cd $commonapi_path/project
+../generators/commonapi_core_gen/commonapi-core-generator-linux-x86 --skel --dest-common ./src-gen/core/common --dest-proxy ./src-gen/core/proxy --dest-stub ./src-gen/core/stub --dest-skel ./src-gen/core/skel ./fidl/HelloWorld.fidl
+
+../generators/commonapi_dbus_gen/commonapi-dbus-generator-linux-x86 --dest-common ./src-gen/dbus/common --dest-proxy ./src-gen/dbus/proxy --dest-stub ./src-gen/dbus/stub  ./fidl/HelloWorld.fidl
+
