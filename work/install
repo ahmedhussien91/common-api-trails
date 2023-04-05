@@ -12,7 +12,7 @@ mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX:PATH=$commonapi_path/install -DENABLE_SIGNAL_HANDLING=1 .. 
 make 
-make install
+sudo make install
 
 # capi-core
 echo "downloading, building and installing capi-core ...\n"
@@ -23,7 +23,7 @@ mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX:PATH=$commonapi_path/install ..
 make
-make install
+sudo make install
 
 # capi-core-dbus
 echo "downloading, building and installing capi-core-dbus ...\n"
@@ -45,7 +45,7 @@ else
 	echo "dbus-1.10.10/ found"
 fi
 cd dbus-1.10.10/
-for i in ../capicxx-dbus-runtime/src/dbus-patches/*.patch; do patch -p1 < $i; done
+for i in ../capicxx-dbus-runtime/src/dbus-patches/*.patch; do patch -Np1 < $i; done
 ./configure
 make
 cd ../capicxx-dbus-runtime
@@ -54,7 +54,7 @@ cd build
 export PKG_CONFIG_PATH="$commonapi_path/dbus-1.10.10" # please set this path
 cmake -DUSE_INSTALLED_COMMONAPI=OFF -DUSE_INSTALLED_DBUS=OFF -DCMAKE_INSTALL_PREFIX:PATH=$commonapi_path/install ..
 make
-make install
+sudo make install
 
 # capi-core-someip
 echo "downloading, building and installing capi-core-someip ...\n"
@@ -65,7 +65,7 @@ mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX:PATH=$commonapi_path/install ..
 make 
-make install 
+sudo make install 
 
 # code generator tools (Fails - need time to see why it fails - download releases instead)
 # cd ../..
