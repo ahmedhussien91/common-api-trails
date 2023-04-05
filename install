@@ -167,7 +167,7 @@ echo "// HelloWorldService.cpp
 #include <iostream>
 #include <thread>
 #include <CommonAPI/CommonAPI.hpp>
-#include "HelloWorldStubImpl.hpp"
+#include \"HelloWorldStubImpl.hpp\"
 
 using namespace std;
 
@@ -201,7 +201,7 @@ public:
 #endif /* HELLOWORLDSTUBIMPL_H_ */" > HelloWorldStubImpl.hpp
 
 echo "// HelloWorldStubImpl.cpp
-#include "HelloWorldStubImpl.hpp"
+#include \"HelloWorldStubImpl.hpp\"
 
 HelloWorldStubImpl::HelloWorldStubImpl() { }
 HelloWorldStubImpl::~HelloWorldStubImpl() { }
