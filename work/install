@@ -210,7 +210,7 @@ void HelloWorldStubImpl::sayHello(const std::shared_ptr<CommonAPI::ClientId> _cl
 	std::string _name, sayHelloReply_t _reply) {
 	    std::stringstream messageStream;
 	    messageStream << \"Hello \" << _name << \"!\";
-	    std::cout << \"sayHello('\" << _name << \"'): '\" << messageStream.str() << \"'\n\";
+	    std::cout << \"sayHello('\" << _name << \"'): '\" << messageStream.str() << \"'\\n\";
 
     _reply(messageStream.str());
 };" > HelloWorldStubImpl.cpp
@@ -241,7 +241,7 @@ int main() {
     CommonAPI::CallStatus callStatus;
     std::string returnMessage;
     myProxy->sayHello(\"Bob\", callStatus, returnMessage);
-    std::cout << \"Got message: '\" << returnMessage << \"'\n\";
+    std::cout << \"Got message: '\" << returnMessage << \"'\\n\";
     return 0;
 }" > HelloWorldClient.cpp
 
@@ -250,4 +250,3 @@ cd $commonapi_path/project
 ../generators/commonapi_core_gen/commonapi-core-generator-linux-x86 --skel --dest-common ./src-gen/core/common --dest-proxy ./src-gen/core/proxy --dest-stub ./src-gen/core/stub --dest-skel ./src-gen/core/skel ./fidl/HelloWorld.fidl
 
 ../generators/commonapi_dbus_gen/commonapi-dbus-generator-linux-x86 --dest-common ./src-gen/dbus/common --dest-proxy ./src-gen/dbus/proxy --dest-stub ./src-gen/dbus/stub  ./fidl/HelloWorld.fidl
-

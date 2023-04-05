@@ -201,7 +201,7 @@ echo "// HelloWorldService.cpp
 #include <iostream>
 #include <thread>
 #include <CommonAPI/CommonAPI.hpp>
-#include "HelloWorldStubImpl.hpp"
+#include \"HelloWorldStubImpl.hpp\"
 
 using namespace std;
 
@@ -235,7 +235,7 @@ public:
 #endif /* HELLOWORLDSTUBIMPL_H_ */" > HelloWorldStubImpl.hpp
 
 echo "// HelloWorldStubImpl.cpp
-#include "HelloWorldStubImpl.hpp"
+#include \"HelloWorldStubImpl.hpp\"
 
 HelloWorldStubImpl::HelloWorldStubImpl() { }
 HelloWorldStubImpl::~HelloWorldStubImpl() { }
@@ -244,7 +244,7 @@ void HelloWorldStubImpl::sayHello(const std::shared_ptr<CommonAPI::ClientId> _cl
 	std::string _name, sayHelloReply_t _reply) {
 	    std::stringstream messageStream;
 	    messageStream << \"Hello \" << _name << \"!\";
-	    std::cout << \"sayHello('\" << _name << \"'): '\" << messageStream.str() << \"'\n\";
+	    std::cout << \"sayHello('\" << _name << \"'): '\" << messageStream.str() << \"'\\n\";
 
     _reply(messageStream.str());
 };" > HelloWorldStubImpl.cpp
@@ -275,7 +275,7 @@ int main() {
     CommonAPI::CallStatus callStatus;
     std::string returnMessage;
     myProxy->sayHello(\"Bob\", callStatus, returnMessage);
-    std::cout << \"Got message: '\" << returnMessage << \"'\n\";
+    std::cout << \"Got message: '\" << returnMessage << \"'\\n\";
     return 0;
 }" > HelloWorldClient.cpp
 
