@@ -1,22 +1,11 @@
 #!/bin/sh
-export commonapi_path=$PWD
+export commonapi_path=$PWD/..
 
-sudo apt-get install libboost-all-dev -y
+sudo apt-get install libboost-all-dev cmake build-essential -y
 sudo apt-get install asciidoc source-highlight doxygen graphviz -y
-
-# vsomeip
-echo "downloading, building and installing vsomeip ...\n"
-git clone https://github.com/COVESA/vsomeip.git
-cd vsomeip
-mkdir build
-cd build
-cmake -DCMAKE_INSTALL_PREFIX:PATH=$commonapi_path/install -DENABLE_SIGNAL_HANDLING=1 .. 
-make 
-sudo make install
 
 # capi-core
 echo "downloading, building and installing capi-core ...\n"
-cd ../..
 git clone https://github.com/COVESA/capicxx-core-runtime.git
 cd capicxx-core-runtime/
 mkdir build
@@ -54,6 +43,17 @@ cd build
 export PKG_CONFIG_PATH="$commonapi_path/dbus-1.10.10" # please set this path
 cmake -DUSE_INSTALLED_COMMONAPI=OFF -DUSE_INSTALLED_DBUS=OFF -DCMAKE_INSTALL_PREFIX:PATH=$commonapi_path/install ..
 make
+sudo make install
+
+# vsomeip
+echo "downloading, building and installing vsomeip ...\n"
+cd ../..
+git clone https://github.com/COVESA/vsomeip.git
+cd vsomeip
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX:PATH=$commonapi_path/install -DENABLE_SIGNAL_HANDLING=1 .. 
+make 
 sudo make install
 
 # capi-core-someip
@@ -269,6 +269,44 @@ int main() {
 # generate files 
 cd $commonapi_path/project
 ../generators/commonapi_core_gen/commonapi-core-generator-linux-x86 --skel --dest-common ./src-gen/core/common --dest-proxy ./src-gen/core/proxy --dest-stub ./src-gen/core/stub --dest-skel ./src-gen/core/skel ./fidl/HelloWorld.fidl
-
 ../generators/commonapi_dbus_gen/commonapi-dbus-generator-linux-x86 --dest-common ./src-gen/dbus/common --dest-proxy ./src-gen/dbus/proxy --dest-stub ./src-gen/dbus/stub  ./fidl/HelloWorld.fidl
+../generators/commonapi_someip_gen/commonapi-someip-generator-linux-x86 --dest-common ./src-gen/someip/common --dest-proxy ./src-gen/someip/proxy --dest-stub ./src-gen/someip/stub  ./fidl/HelloWorld.fdepl
 
+
+# implementing Cmake and compiling someip commonapi application
+cd $commonapi_path/project
+export RUNTIME_PATH=$commonapi_path/install
+echo "
+cmake_minimum_required(VERSION 2.8)
+
+set(CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} -pthread -std=c++0x\")
+include_directories(
+    src-gen
+    $ENV{RUNTIME_PATH}/capicxx-core-runtime/include
+    $ENV{RUNTIME_PATH}/capicxx-someip-runtime/include
+    $ENV{RUNTIME_PATH}/vsomeip/interface
+)
+link_directories(
+    $ENV{RUNTIME_PATH}/capicxx-core-runtime/build
+    $ENV{RUNTIME_PATH}/capicxx-someip-runtime/build
+    $ENV{RUNTIME_PATH}/vsomeip/build
+)
+
+# client Service 
+add_executable(HelloWorldClient
+	src/HelloWorldClient.cpp
+	src-gen/v1/commonapi/HelloWorldSomeIPProxy.cpp
+	src-gen/v1/commonapi/HelloWorldSomeIPDeployment.cpp
+)
+target_link_libraries(HelloWorldClient CommonAPI CommonAPI-SomeIP vsomeip)
+
+# Service server
+add_executable(HelloWorldService
+	src/HelloWorldService.cpp
+	src/HelloWorldStubImpl.cpp
+	src-gen/v1/commonapi/HelloWorldSomeIPStubAdapter.cpp
+	src-gen/v1/commonapi/HelloWorldStubDefault.cpp
+	src-gen/v1/commonapi/HelloWorldSomeIPDeployment.cpp
+)
+target_link_libraries(HelloWorldService CommonAPI CommonAPI-SomeIP vsomeip)
+" > CMakeLists.txt
