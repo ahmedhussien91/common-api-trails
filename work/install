@@ -19,28 +19,28 @@ echo "downloading, building and installing capi-core-dbus ...\n"
 cd ../..
 git clone https://github.com/GENIVI/capicxx-dbus-runtime.git
 # download and install dbus
-if [ ! -f dbus-1.10.10.tar.gz ]
+if [ ! -f dbus-1.12.26.tar.gz ]
 then 
-	echo "dbus-1.10.10.tar.gz not found, downloading ..."
-	wget http://dbus.freedesktop.org/releases/dbus/dbus-1.10.10.tar.gz
+	echo "dbus-1.12.26.tar.gz not found, downloading ..."
+	wget http://dbus.freedesktop.org/releases/dbus/dbus-1.12.26.tar.gz
 else
-	echo "dbus-1.10.10.tar.gz found"
+	echo "dbus-1.12.26.tar.gz found"
 fi
-if [ ! -d dbus-1.10.10/ ]
+if [ ! -d dbus-1.12.26/ ]
 then 
-	echo "dbus-1.10.10/ not found, executing tar ..."
-	tar -xzf dbus-1.10.10.tar.gz
+	echo "dbus-1.12.26/ not found, executing tar ..."
+	tar -xzf dbus-1.12.26.tar.gz
 else
-	echo "dbus-1.10.10/ found"
+	echo "dbus-1.12.26/ found"
 fi
-cd dbus-1.10.10/
+cd dbus-1.12.26/
 for i in ../capicxx-dbus-runtime/src/dbus-patches/*.patch; do patch -Np1 < $i; done
 ./configure
 make
 cd ../capicxx-dbus-runtime
 mkdir build
 cd build
-export PKG_CONFIG_PATH="$commonapi_path/dbus-1.10.10" # please set this path
+export PKG_CONFIG_PATH="$commonapi_path/work/dbus-1.12.26" # please set this path
 cmake -DUSE_INSTALLED_COMMONAPI=OFF -DUSE_INSTALLED_DBUS=OFF -DCMAKE_INSTALL_PREFIX:PATH=$commonapi_path/install ..
 make
 sudo make install
