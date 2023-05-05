@@ -34,7 +34,15 @@ else
 	echo "dbus-1.12.26/ found"
 fi
 cd dbus-1.12.26/
-for i in ../capicxx-dbus-runtime/src/dbus-patches/*.patch; do patch -Np1 < $i; done
+if ! patch -R -p0 -s -f --dry-run <patchfile; then
+  patch -p0 <patchfile
+fi
+for i in ../capicxx-dbus-runtime/src/dbus-patches/*.patch; 
+do 
+	if ! patch -R -Np1 -s -f --dry-run <$i; then
+		patch -Np1 <$i
+	fi
+done
 ./configure
 make
 cd ../capicxx-dbus-runtime
@@ -268,9 +276,9 @@ int main() {
 
 # generate files 
 cd $commonapi_path/project
-../generators/commonapi_core_gen/commonapi-core-generator-linux-x86 -sk ./fidl/HelloWorld.fidl
-../generators/commonapi_dbus_gen/commonapi-dbus-generator-linux-x86  ./fidl/HelloWorld.fidl
-../generators/commonapi_someip_gen/commonapi-someip-generator-linux-x86  ./fidl/HelloWorld.fdepl
+../generators/commonapi_core_gen/commonapi-core-generator-linux-x86_64 -sk ./fidl/HelloWorld.fidl
+../generators/commonapi_dbus_gen/commonapi-dbus-generator-linux-x86_64  ./fidl/HelloWorld.fidl
+../generators/commonapi_someip_gen/commonapi-someip-generator-linux-x86_64  ./fidl/HelloWorld.fdepl
 
 
 # implementing Cmake and compiling someip commonapi application
