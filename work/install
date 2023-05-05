@@ -306,3 +306,23 @@ add_executable(HelloWorldService
 )
 target_link_libraries(HelloWorldService CommonAPI CommonAPI-SomeIP vsomeip3)
 " > CMakeLists.txt
+
+echo "export commonapi_path=$PWD/..
+export RUNTIME_PATH=$commonapi_path/install
+rm -rf build
+mkdir build
+cd build
+cmake ..
+make
+cd ..
+" > build.sh
+
+chmod +x build.sh
+./build.sh
+
+echo "export LD_LIBRARY_PATH=$PWD/../install/lib
+./build/HelloWorldClient &
+./build/HelloWorldService " > run.sh
+
+chmod +x run.sh
+./run.sh
