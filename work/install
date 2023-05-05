@@ -1,7 +1,7 @@
 #!/bin/sh
 export commonapi_path=$PWD/..
 
-sudo apt-get install libboost-all-dev cmake build-essential -y
+sudo apt-get install libboost-all-dev cmake build-essential default-jre -y
 sudo apt-get install asciidoc source-highlight doxygen graphviz -y
 
 # capi-core
